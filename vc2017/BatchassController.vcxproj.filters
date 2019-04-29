@@ -78,6 +78,15 @@
     <Filter Include="Blocks\Cinder-VDUI\src">
       <UniqueIdentifier>{11EFD1A5-6F00-4805-8D14-63403C745C93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="assets">
+      <UniqueIdentifier>{4923b6da-4a31-4917-83f8-2ed28c8d5541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debug">
+      <UniqueIdentifier>{e98b4d14-77b1-463a-8d28-4ef07983e87a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="release">
+      <UniqueIdentifier>{fe13ed60-652f-4156-8948-80b57590bae4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\BatchassControllerApp.cpp">
@@ -348,5 +357,24 @@
     <ResourceCompile Include="Resources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\assets\textures.xml">
+      <Filter>assets</Filter>
+    </Xml>
+    <Xml Include="build\Win32\Debug\VDBatchassController.xml">
+      <Filter>debug</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\live_params.json">
+      <Filter>assets</Filter>
+    </None>
+    <None Include="..\assets\session.json">
+      <Filter>assets</Filter>
+    </None>
+    <None Include="..\assets\uniforms.json">
+      <Filter>assets</Filter>
+    </None>
   </ItemGroup>
 </Project>
