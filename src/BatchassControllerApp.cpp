@@ -65,6 +65,10 @@ private:
 	void							positionRenderWindow();
 	bool							mFadeInDelay;
 	SpoutOut 						mSpoutOut;
+	bool							mFlipV;
+	bool							mFlipH;
+	int								xLeft, xRight, yLeft, yRight;
+	int								margin, tWidth, tHeight;
 };
 
 
@@ -85,6 +89,16 @@ BatchassControllerApp::BatchassControllerApp()
 	mVDUI = VDUI::create(mVDSettings, mVDSession);
 	// windows
 	mIsShutDown = false;
+	mFlipV = false;
+	mFlipH = true;
+	xLeft = 0;
+	xRight = mVDSettings->mRenderWidth;
+	yLeft = 0;
+	yRight = mVDSettings->mRenderHeight;
+	margin = 20;
+	tWidth = mVDSettings->mFboWidth / 2;
+	tHeight = mVDSettings->mFboHeight / 2;
+	mVDSession->setMode(1);
 	mRenderWindowTimer = 0.0f;
 	//timeline().apply(&mRenderWindowTimer, 1.0f, 2.0f).finishFn([&] { positionRenderWindow(); });
 
@@ -94,7 +108,7 @@ void BatchassControllerApp::resizeWindow()
 	mVDUI->resize();
 }
 void BatchassControllerApp::positionRenderWindow() {
-	mVDSettings->mRenderPosXY = ivec2(mVDSettings->mRenderX, mVDSettings->mRenderY);//20141214 was 0
+	mVDSettings->mRenderPosXY = ivec2(mVDSettings->mRenderX, mVDSettings->mRenderY);
 	setWindowPos(mVDSettings->mRenderX, mVDSettings->mRenderY);
 	setWindowSize(mVDSettings->mRenderWidth, mVDSettings->mRenderHeight);
 }
@@ -191,15 +205,45 @@ void BatchassControllerApp::draw()
 	}
 
 	//gl::setMatricesWindow(toPixels(getWindowSize()),false);
-	gl::setMatricesWindow(mVDSettings->mRenderWidth, mVDSettings->mRenderHeight, false);
-	gl::draw(mVDSession->getMixTexture(), getWindowBounds());
-
+	gl::setMatricesWindow(mVDSettings->mRenderWidth, mVDSettings->mRenderHeight, true);
+	//gl::draw(mVDSession->getMixTexture(), getWindowBounds());
+	if (mVDSession->getMode() == 0) gl::draw(mVDSession->getMixetteTexture(), getWindowBounds());
+	if (mVDSession->getMode() == 1) gl::draw(mVDSession->getMixTexture(), getWindowBounds());
+	if (mVDSession->getMode() == 2) gl::draw(mVDSession->getRenderTexture(), getWindowBounds());
+	if (mVDSession->getMode() == 3) gl::draw(mVDSession->getHydraTexture(), getWindowBounds());
+	if (mVDSession->getMode() == 4) gl::draw(mVDSession->getFboTexture(0), getWindowBounds());
+	if (mVDSession->getMode() == 5) gl::draw(mVDSession->getFboTexture(1), getWindowBounds());
+	if (mVDSession->getMode() == 6) gl::draw(mVDSession->getFboTexture(2), getWindowBounds());
+	if (mVDSession->getMode() == 7) gl::draw(mVDSession->getFboTexture(3), getWindowBounds());
+	if (mVDSession->getMode() == 8) gl::draw(mVDSession->getFboTexture(4), getWindowBounds());
 	// Spout Send
 	mSpoutOut.sendViewport();
+
+	gl::draw(mVDSession->getMixetteTexture(), Rectf(0, 0, tWidth, tHeight));
+	gl::drawString("Mixette", vec2(toPixels(xLeft), toPixels(tHeight)), Color(1, 1, 1), Font("Verdana", toPixels(16)));
+	// flipH MODE_IMAGE = 1
+	gl::draw(mVDSession->getRenderTexture(), Rectf(tWidth * 2 + margin, 0, tWidth + margin, tHeight));
+	gl::drawString("Render", vec2(toPixels(xLeft + tWidth + margin), toPixels(tHeight)), Color(1, 1, 1), Font("Verdana", toPixels(16)));
+	// flipV MODE_MIX = 0
+	gl::draw(mVDSession->getMixTexture(), Rectf(0, tHeight * 2 + margin, tWidth, tHeight + margin));
+	gl::drawString("Mix", vec2(toPixels(xLeft), toPixels(tHeight * 2 + margin)), Color(1, 1, 1), Font("Verdana", toPixels(16)));
+	// show the FBO color texture 
+	gl::draw(mVDSession->getHydraTexture(), Rectf(tWidth + margin, tHeight + margin, tWidth * 2 + margin, tHeight * 2 + margin));
+	gl::drawString("Hydra", vec2(toPixels(xLeft + tWidth + margin), toPixels(tHeight * 2 + margin)), Color(1, 1, 1), Font("Verdana", toPixels(16)));
+
+
+	gl::drawString("irx: " + std::to_string(mVDSession->getFloatUniformValueByName("iResolutionX"))
+		+ " iry: " + std::to_string(mVDSession->getFloatUniformValueByName("iResolutionY"))
+		+ " fw: " + std::to_string(mVDSettings->mFboWidth)
+		+ " fh: " + std::to_string(mVDSettings->mFboHeight),
+		vec2(xLeft, getWindowHeight() - toPixels(30)), Color(1, 1, 1),
+		Font("Verdana", toPixels(24)));
+
+
 	mVDUI->Run("UI", (int)getAverageFps());
 	if (mVDUI->isReady()) {
 	}
-	getWindow()->setTitle(mVDSettings->sFps + " fps VDUI");
+	getWindow()->setTitle(mVDSettings->sFps + " Ctrl");
 }
 
 void prepareSettings(App::Settings *settings)
